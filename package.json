@@ -5,13 +5,13 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-   "start": "nodemon src/index.js"
-
+    "start": "nodemon src/index.js"
   },
   "keywords": [],
   "author": "Sakin",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.2",
+    "prettier": "^3.1.1"
   }
 }
