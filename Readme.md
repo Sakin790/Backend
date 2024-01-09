@@ -1,3 +1,9 @@
+# Backend with Express
+### Step 1
+
+
+
+
 # Backend with Hitesh sir
 ## Algorithm of registering a user 
 1. Collect Fullname , username, avatar, email , password from  user.body 
