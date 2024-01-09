@@ -5,18 +5,20 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { apiResponse } from "../utils/apiResponse.js";
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { fullName, email, username, password } = req.body;
+
+
+  const { fullname, email, username, password } = req.body;
 
   // Validation check je email fullname password  empty kina....
   if (
-    [fullName, email, username, password].some((field) => field?.trim() === "")
+    [fullname, email, username, password].some((field) => field?.trim() === "")
   ) {
     throw new apiError(400, "all fields are required");
   }
 
   //ami check korbo je database ai email or username diye kono user ace kina
   //jodi user thake tahole ami error dibo
-  const existedUser = User.findOne({
+  const existedUser = await User.findOne({
     //database a username and email exitst kore kina
     $or: [{ username }, { email }], //object er moddhe kon value check korbo
   });
@@ -48,7 +50,7 @@ const registerUser = asyncHandler(async (req, res) => {
   //Database a info gulo create kore dau , pore eta diyei login hobe
   // mane user create holo
   const user =  await User.create({
-    fullName,
+    fullname,
     username: username.toLowerCase(),
     email,
     password,
