@@ -1,15 +1,34 @@
 # Backend with Express
-### Step 1
+### Step 1 Setup...
+-  npm init -y
+- Create a public Folder
+- Create "src" Folder 
+- Inside src folder make 6 folder 
+- Controllers , db, middleware, model, routes, utils
+- Create .env .gitignore file in root directory
+- Create .prettierrc &  .prettierignore file in root 
+-
 
+# Step 2 Project Setup
+- .gitignore file a ignore file gulo add korte hobe (Google)
+- prettier configuration 
+```javascript
+{
+  "singleQuote": false,
+  "bracketSpacing": true,
+  "tabWidth": 2,
+  "semi": true,
+  "trailingComma": "es5"
+}
 
-
-
-# Backend with Hitesh sir
-## Algorithm of registering a user 
-1. Collect Fullname , username, avatar, email , password from  user.body 
-2. Check empty validation 
-3. Throw an error if user already exist
-4. Multer and Cloudinary Configuration
-5. Create a user
-6. if user created then remove the password and refressh Token from Database
-7. Sent a json response 
+```
+- Prettier  Ignore Setting
+```javascript
+*.env
+.env
+.env.*
+/.vscode
+/node_modules
+./dist
+```
+ 
