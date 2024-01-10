@@ -31,5 +31,5 @@
 /node_modules
 ./dist
 ```
-# Step 3
+# Step 3 Create Custome error class
  
