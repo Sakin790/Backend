@@ -32,5 +32,5 @@
 ./dist
 ```
 # Step 3 Create Custome error class
-- Amar laptop nosto
+- Amar laptop nosto hoye geche
  
