@@ -76,6 +76,31 @@ const registerUser = asyncHandler(async (req, res) => {
     .json(new apiResponse(200, createUser, "user registred successfully"));
 });
 
+const loginUser = asyncHandler(async (req, res) => {
+  // Email password
+  // Email password exist kore kina
+  // Email or Password error
+  // Login success hole profile a redirect
+  //
+
+  const { email, username, password } = req.body;
+  if (!email || !username) {
+    throw new apiError(400, "username or email is reqirded");
+  }
+  const user = await User.findOne({
+    $or: [{ username }, { email }],
+  });
+  if (!user) {
+    throw new apiError(404, "User not found");
+  }
+
+  const isPasswordvalid = await user.isPasswordCorrect(password);
+  
+  if (!isPasswordvalid) {
+    throw new apiError(400, "Please enter currect password");
+  }
+});
+
 export { registerUser };
 
 //get user details from frontend => use postman
@@ -87,4 +112,3 @@ export { registerUser };
 //remove password and refresh token form response
 //check for user creation
 //return response........
-
