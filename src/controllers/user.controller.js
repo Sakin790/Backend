@@ -5,8 +5,6 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { apiResponse } from "../utils/apiResponse.js";
 
 const registerUser = asyncHandler(async (req, res) => {
-
-
   const { fullname, email, username, password } = req.body;
 
   // Validation check je email fullname password  empty kina....
@@ -29,13 +27,22 @@ const registerUser = asyncHandler(async (req, res) => {
 
   //multer file niye server a rekhe diyese, okhne thke ami access korbo
   const avatarLocalPath = req.files?.avatar[0]?.path;
-  const coverImageLocalPath = req.files?.coverImage[0]?.path;
+  //const coverImageLocalPath = req.files?.coverImage[0]?.path;
+
+  let coverImageLocalPath;
+  if (
+    req.files &&
+    Array.isArray(req.files.coverImage) &&
+    req.files.coverImage.length > 0
+  ) {
+    coverImageLocalPath = req.files.coverImage[0].path;
+  }
 
   //jodi avatar er path na uplode hoi then error dau
   if (!avatarLocalPath) {
     throw new apiError(400, "Avatar is reqired");
   }
-//cloudinary function paramiter hisbae image er path nibe... 
+  //cloudinary function paramiter hisbae image er path nibe...
   const avatar = await uploadOnCloudinary(avatarLocalPath);
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
@@ -43,24 +50,19 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new apiError(400, "Avatar is required");
   }
 
-  if (!coverImage) {
-    throw new apiError(400, "cover image is required");
-  }
-
   //Database a info gulo create kore dau , pore eta diyei login hobe
   // mane user create holo
-  const user =  await User.create({
+  const user = await User.create({
     fullname,
     username: username.toLowerCase(),
     email,
     password,
     avatar: avatar.url,
-    coverImage: coverImage.url ,
+    coverImage: coverImage?.url || "",
   });
 
-
-//Databse a user find koro tarpor id pele, okhne theke password and refreshToken
-//remove korbo
+  //Databse a user find koro tarpor id pele, okhne theke password and refreshToken
+  //remove korbo
   const createUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );

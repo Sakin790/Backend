@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import fs, { fdatasync } from "fs";
+import fs from "fs";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -16,12 +16,11 @@ const uploadOnCloudinary = async (localFilePath) => {
     });
     //file has been uplode
     //console.log("Successfully uploded", respone.url);
-    fs.unlinkSync(localFilePath)
+    fs.unlinkSync(localFilePath);
     return respone;
-    
   } catch (error) {
     fs.unlinkSync(localFilePath); //remove the locally saved file
     return null;
   }
 };
-export {uploadOnCloudinary}
+export { uploadOnCloudinary };
