@@ -7,7 +7,6 @@ import { apiResponse } from "../utils/apiResponse.js";
 const genarateAccessTokenAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
-
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
 
@@ -102,7 +101,7 @@ const loginUser = asyncHandler(async (req, res) => {
   }
   //ami je username or email nilam seta DB te ache kina dekhbo
   const user = await User.findOne({
-    $or: [{ username }, { email }],
+    $or: [{ username }, { email }],//$or => diye ami 2 ta object find korar
   });
   
   //jodi DB te Username or email na thake Then Error throw korbo
