@@ -4,6 +4,16 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { apiResponse } from "../utils/apiResponse.js";
 
+const genarateAccessTokenAndRefreshToken = async (userId) => {
+  try {
+    const user = await User.findById(userId);
+    user.generateAccessToken()
+    user.generateRefreshToken()
+  } catch (error) {
+    throw new apiError(500, "Somethig Went Wrong:JWT");
+  }
+};
+
 const registerUser = asyncHandler(async (req, res) => {
   const { fullname, email, username, password } = req.body;
 
@@ -77,12 +87,6 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  // Email password
-  // Email password exist kore kina
-  // Email or Password error
-  // Login success hole profile a redirect
-  //
-
   const { email, username, password } = req.body;
   if (!email || !username) {
     throw new apiError(400, "username or email is reqirded");
@@ -90,14 +94,15 @@ const loginUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({
     $or: [{ username }, { email }],
   });
+
   if (!user) {
     throw new apiError(404, "User not found");
   }
 
   const isPasswordvalid = await user.isPasswordCorrect(password);
-  
+
   if (!isPasswordvalid) {
-    throw new apiError(400, "Please enter currect password");
+    throw new apiError(401, "Please enter currect password");
   }
 });
 
