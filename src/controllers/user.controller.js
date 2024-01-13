@@ -93,8 +93,11 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
+  //Requist body theke email password nibo , post man theke nite hobe
+  //username or email base login system , password must lagbei
   const { email, username, password } = req.body;
-  if (!email || !username) {
+  if (!email || !username) { //req.body theke must email password nite hobe
+    //nahole error throw korbo
     throw new apiError(400, "username or email is reqirded");
   }
   const user = await User.findOne({
