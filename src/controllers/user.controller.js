@@ -7,8 +7,15 @@ import { apiResponse } from "../utils/apiResponse.js";
 const genarateAccessTokenAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
-    user.generateAccessToken()
-    user.generateRefreshToken()
+
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false });
+
+    return { accessToken, refreshToken };
+    
   } catch (error) {
     throw new apiError(500, "Somethig Went Wrong:JWT");
   }
