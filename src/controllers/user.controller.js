@@ -15,7 +15,6 @@ const genarateAccessTokenAndRefreshToken = async (userId) => {
     await user.save({ validateBeforeSave: false });
 
     return { accessToken, refreshToken };
-    
   } catch (error) {
     throw new apiError(500, "Somethig Went Wrong:JWT");
   }
@@ -111,6 +110,31 @@ const loginUser = asyncHandler(async (req, res) => {
   if (!isPasswordvalid) {
     throw new apiError(401, "Please enter currect password");
   }
+  const { refreshToken, accessToken } =
+    await genarateAccessTokenAndRefreshToken(user._id);
+  const logedIn = await User.findById(user._id).select(
+    "password -refreshToken"
+  );
+
+  const option = {
+    httpOnly: true,
+    secure: true,
+  };
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, option)
+    .cookie("refreshToken", refreshToken, option)
+    .json(
+      new apiResponse(
+        200,
+        {
+          user: loginUser,
+          accessToken,
+          registerUser,
+        },
+        "user logedIn successfully"
+      )
+    );
 });
 
 export { registerUser };
