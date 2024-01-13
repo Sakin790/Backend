@@ -100,25 +100,29 @@ const loginUser = asyncHandler(async (req, res) => {
     //nahole error throw korbo
     throw new apiError(400, "username or email is reqirded");
   }
+  //ami je username or email nilam seta DB te ache kina dekhbo
   const user = await User.findOne({
     $or: [{ username }, { email }],
   });
-
+  
+  //jodi DB te Username or email na thake Then Error throw korbo
   if (!user) {
     throw new apiError(404, "User not found");
   }
-
+//DB te user paua gele password cheke korbo
   const isPasswordvalid = await user.isPasswordCorrect(password);
-
+//password match na korle error throw korbo
   if (!isPasswordvalid) {
     throw new apiError(401, "Please enter currect password");
   }
+  //Password thik thakle acessToken and refreshTokekn Genarate korbo
+  //and user ke sent korbo
   const { refreshToken, accessToken } =
     await genarateAccessTokenAndRefreshToken(user._id);
   const logedIn = await User.findById(user._id).select(
     "password -refreshToken"
   );
-
+//token genarate hole segulo user ke cookie'r maddhome sent korbo
   const option = {
     httpOnly: true,
     secure: true,
