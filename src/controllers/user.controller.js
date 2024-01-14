@@ -128,8 +128,8 @@ const loginUser = asyncHandler(async (req, res) => {
   };
   return res
     .status(200)
-    .cookie("accessToken", accessToken, option)
-    .cookie("refreshToken", refreshToken, option)
+    .cookie("accessToken", accessToken, option)//access token ta cookie te dilam
+    .cookie("refreshToken", refreshToken, option)//refresh token ta cookie te dilam
     .json(
       new apiResponse(
         200,
