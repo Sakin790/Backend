@@ -123,7 +123,7 @@ const loginUser = asyncHandler(async (req, res) => {
   );
 //token genarate hole segulo user ke cookie'r maddhome sent korbo
   const option = {
-    httpOnly: true,
+    httpOnly: true,//server theke maintain kora jabe sudhu
     secure: true,
   };
   return res
