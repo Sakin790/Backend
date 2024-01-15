@@ -143,6 +143,7 @@ const loginUser = asyncHandler(async (req, res) => {
       )
     );
 
+  });
   const logOutUser = async (req, res) => {
     User.findByIdAndUpdate(
       req.user._id,
@@ -166,7 +167,6 @@ const loginUser = asyncHandler(async (req, res) => {
       .clearCookie("refreshToken", option)
       .json(new apiResponse(200, "user log out"));
   };
-});
 
 export { registerUser, loginUser, logOutUser };
 
