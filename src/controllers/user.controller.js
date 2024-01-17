@@ -4,18 +4,21 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { apiResponse } from "../utils/apiResponse.js";
 
-const genarateAccessTokenAndRefreshToken = async (userId) => {
+const generateAccessAndRefereshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
-
+    //Refresh token db te save koro
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
 
     return { accessToken, refreshToken };
   } catch (error) {
-    throw new apiError(500, "Somethig Went Wrong:JWT");
+    throw new apiError(
+      500,
+      "Something went wrong while generating refresh and access token"
+    );
   }
 };
 
@@ -92,91 +95,83 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  //Requist body theke email password nibo , post man theke nite hobe
-  //username or email base login system , password must lagbei
+  //Email username password collect koro
   const { email, username, password } = req.body;
+  console.log(email);
+  //username othoba email jodi na thake tahole error dibo
+  if (!username && !email) {
+    throw new apiError(400, "username or email is required");
+  }
 
-  if (!email && !username) { //req.body theke must email password nite hobe
-    //nahole error throw korbo
-    throw new apiError(400, "username or email is reqirded");
-  }
-  //ami je username or email nilam seta DB te ache kina dekhbo
+  //Tumi je amake username othoba email dile seta DB te ache kina dekkhbo
+  //Jodi na thake taholei  error throw korbo
   const user = await User.findOne({
-    $or: [{ username }, { email }],//$or => diye ami 2 ta object find korar
+    $or: [{ username }, { email }],
   });
-  
-  //jodi DB te Username or email na thake Then Error throw korbo
   if (!user) {
-    throw new apiError(404, "User not found");
+    throw new apiError(404, "User does not exist");
   }
-//DB te user paua gele password cheke korbo
-  const isPasswordvalid = await user.isPasswordCorrect(password);
-//password match na korle error throw korbo
-  if (!isPasswordvalid) {
-    throw new apiError(401, "Please enter currect password");
+
+  const isPasswordValid = await user.isPasswordCorrect(password);
+
+  if (!isPasswordValid) {
+    throw new apiError(401, "Invalid user credentials");
   }
-  //Password thik thakle acessToken and refreshTokekn Genarate korbo
-  //and user ke sent korbo
-  const { refreshToken, accessToken } =
-    await genarateAccessTokenAndRefreshToken(user._id);
-  const logedIn = await User.findById(user._id).select(
-    "password -refreshToken"
+
+  const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(user._id);
+
+  const loggedInUser = await User.findById(user._id).select(
+    "-password -refreshToken"
   );
-//token genarate hole segulo user ke cookie'r maddhome sent korbo
-  const option = {
-    httpOnly: true,//server theke maintain kora jabe sudhu
+
+  const options = {
+    httpOnly: true,
     secure: true,
   };
+
   return res
     .status(200)
-    .cookie("accessToken", accessToken, option)//access token ta cookie te dilam
-    .cookie("refreshToken", refreshToken, option)//refresh token ta cookie te dilam
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
     .json(
       new apiResponse(
         200,
         {
-          user: loginUser,
+          user: loggedInUser,
           accessToken,
           refreshToken,
         },
-
-        "user logedIn successfully"
+        "User logged In Successfully"
       )
     );
+});
 
-  });
-  const logOutUser = async (req, res) => {
-    User.findByIdAndUpdate(
-      req.user._id,
-      {
-        $set: {
-          refreshToken: undefined,
-        },
+//Remove access token and cookie 
+const logoutUser = asyncHandler(async (req, res) => {
+  await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        refreshToken: undefined, // this removes the field from document
       },
+    },
+    {
+      new: true,
+    }
+  );
 
-      {
-        new: true,
-      }
-    );
-    const option = {
-      httpOnly: true,
-      secure: true,
-    };
-    return res
-      .status(200)
-      .clearCookie("accessToken", option)
-      .clearCookie("refreshToken", option)
-      .json(new apiResponse(200, "user log out"));
+  const options = {
+    httpOnly: true,
+    secure: true,
   };
 
-export { registerUser, loginUser, logOutUser };
+  return res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new apiResponse(200, {}, "User logged Out"));
+});
 
-//get user details from frontend => use postman
-//validation=> not empty
-//check if user allready exitst => username or emails
-//check for images and avatar
-//uplode them cloudinary
-//create user object => create entry in db
-//remove password and refresh token form response
-//check for user creation
-//return response........
+export { registerUser, loginUser, logoutUser };
+
+
