@@ -102,9 +102,6 @@ const loginUser = asyncHandler(async (req, res) => {
   if (!username && !email) {
     throw new apiError(400, "username or email is required");
   }
-
-  //Tumi je amake username othoba email dile seta DB te ache kina dekkhbo
-  //Jodi na thake taholei  error throw korbo
   const user = await User.findOne({
     $or: [{ username }, { email }],
   });
