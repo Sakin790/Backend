@@ -7,34 +7,32 @@ import jwt from "jsonwebtoken"
 import mongoose from "mongoose";
 import fs from "fs"
 
-const generateAccessAndRefereshTokens = async(userId) =>{
+const generateAccessAndRefreshTokens = async (userId) => {
     try {
-        const user = await User.findById(userId)
-        const accessToken = user.generateAccessToken()
-        const refreshToken = user.generateRefreshToken()
+        const user = await User.findById(userId);
+        
+        if (!user) {
+            throw new Error('User not found');
+        }
 
-        user.refreshToken = refreshToken
-        await user.save({ validateBeforeSave: false })
+        const accessToken = user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
 
-        return {accessToken, refreshToken}
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
 
+        console.log('Tokens generated successfully:', { accessToken, refreshToken });
 
+        return { accessToken, refreshToken };
     } catch (error) {
-        throw new ApiError(500, "Something went wrong while generating referesh and access token")
+        console.error('Error generating tokens:', error);
+        throw new ApiError(500, "Something went wrong while generating refresh and access token");
     }
-}
+};
+
 
 const registerUser = asyncHandler( async (req, res) => {
-    // get user details from frontend
-    // validation - not empty
-    // check if user already exists: username, email
-    // check for images, check for avatar
-    // upload them to cloudinary, avatar
-    // create user object - create entry in db
-    // remove password and refresh token field from response
-    // check for user creation
-    // return res
-
+   
 
     const {fullName, email, username, password } = req.body
     //console.log("email: ", email);
@@ -138,7 +136,7 @@ const loginUser = asyncHandler(async (req, res) =>{
     throw new ApiError(401, "Invalid user credentials")
     }
 
-   const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(user._id)
+   const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
@@ -187,6 +185,13 @@ const logoutUser = asyncHandler(async(req, res) => {
     .clearCookie("refreshToken", options)
     .json(new ApiResponse(200, {}, "User logged Out"))
 })
+
+ const deleteAllUser = asyncHandler(async (req, res) => {
+    await User.deleteMany({});
+    res.status(200).json({
+      message: "All User deleted successfully",
+    });
+  });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
@@ -487,6 +492,7 @@ const getWatchHistory = asyncHandler(async(req, res) => {
 
 
 export {
+    deleteAllUser,
     registerUser,
     loginUser,
     logoutUser,
